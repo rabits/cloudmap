@@ -11,6 +11,7 @@
         },
         "rescale": "ID",
         "base_url": "057.0E/MET/",
+        "available": 30,
         "suffix": "_MET7_2_"
     },
     {
@@ -25,6 +26,7 @@
         },
         "rescale": "ID",
         "base_url": "000.0E/MSG/",
+        "available": 60,
         "suffix": "_MSG3_9_"
     },
     {
@@ -38,6 +40,7 @@
         "bottom": 744},
         "rescale": "ID",
         "base_url": "075.0W/GOES/",
+        "available": 180,
         "suffix": "_GOES13_4_"
     },
     {
@@ -52,6 +55,7 @@
         },
         "rescale": "ID",
         "base_url": "135.0W/GOES/",
+        "available": 180,
         "suffix": "_GOES15_4_"
     },
     {
@@ -80,6 +84,7 @@
         },
         "rescale": "ID",
         "base_url": "140.7E/MTSAT/",
+        "available": 60,
         "suffix": "_MTSAT3_7_"
     }
 ]

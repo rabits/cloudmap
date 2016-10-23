@@ -179,6 +179,7 @@ class Satellites(object):
                     base_url=s['base_url'],
                     suffix=s['suffix'],
                     resolution=resolution,
+                    available=s['available'],
                     debug=debug,
                     rescale=rescale
                 ))
@@ -193,12 +194,21 @@ class Satellites(object):
                     rescale=rescale
                 ))
 
-    def find_latest(self):
+    def find_latest(self, max_range):
         """
         Find the latest time for which all satellite images can
         be downloaded
         """
-        dt = datetime.datetime.utcnow()
+        return self.find(datetime.datetime.utcnow(), max_range)
+
+    def find_timestamp(self, timestamp, max_range):
+        return self.find(datetime.datetime.strptime(timestamp, "%d/%m/%y %H"), max_range)
+
+    def find(self, dt, max_range):
+        """
+        Find the latest time for which all satellite images can
+        be downloaded based on given datetime
+        """
         max_tries = 200
 
         for _ in range(max_tries):
@@ -207,7 +217,8 @@ class Satellites(object):
             for satellite in self.satellite_list:
                 satellite.login(self.username, self.password)
                 satellite.set_time(dt, self.tempdir)
-                found_all = found_all and satellite.check_for_image()
+                isfound = satellite.check_for_image_range(max_range) if max_range else satellite.check_for_image()
+                found_all = found_all and isfound 
 
             if found_all:
                 break
@@ -216,7 +227,7 @@ class Satellites(object):
         if not found_all:
             sys.exit("Cannot download (all) satellite images!")
 
-        return self.satellite_list[0].dt
+        return dt
 
     def download(self, purge):
         """

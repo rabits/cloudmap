@@ -85,6 +85,13 @@ To see all command line options of the script use ``--help``::
     -d, --debug           store intermediate results
     -c FILE, --conf_file FILE
                           Specify config file
+    -t DATETIME, --timestamp DATETIME
+                          Specify date/time of sources (21/11/06 16)
+    -o FILE, --output FILE
+                          Specify output file path
+                          (%Y-%m/clouds_%Y-%m-%d_%H.jpg)
+    -r MINUTES, --range MINUTES
+                          Set +-range to find missed sat images
     -f, --force           Force to recreate cloud map
 
 Dependencies

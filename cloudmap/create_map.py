@@ -27,6 +27,15 @@ def main():
                         metavar="FILE",
                         default=os.path.expanduser(
                             "~/.CreateCloudMap/CreateCloudMap.ini"))
+    parser.add_argument("-t", "--timestamp", help="Specify date/time of sources (21/11/06 16)",
+                        metavar="DATETIME",
+                        default=None)
+    parser.add_argument("-o", "--output", help="Specify output file path (%Y-%m/clouds_%Y-%m-%d_%H.jpg)",
+                        metavar="FILE",
+                        default=None)
+    parser.add_argument("-r", "--range", help="Set +-range to find missed sat images",
+                        metavar="MINUTES",
+                        default=None)
     parser.add_argument("-f", "--force", help="Force to recreate cloud map",
                         action="store_true")
     parser.add_argument('-V', '--version', action='version',
@@ -50,9 +59,6 @@ def main():
     resolution = config.get("Download", 'resolution')
     purge = config.get("Download", 'purge').lower() == 'true'
 
-    outdir = config.get("xplanet", 'destinationdir')
-    outfile = config.get("xplanet", 'destinationfile')
-
     try:
         nprocs = int(config.get("processing", 'nprocs'))
     except (configparser.NoSectionError, configparser.NoOptionError):
@@ -75,7 +81,17 @@ def main():
 
     satellite_list = Satellites(resolution, username, password,
                                 tempdir, nprocs, args.debug)
-    dt = satellite_list.find_latest()
+
+    if args.range:
+        args.range = int(args.range)
+    dt = satellite_list.find_timestamp(args.timestamp, args.range) if args.timestamp else satellite_list.find_latest(args.range)
+
+    if args.output:
+        outdir = os.path.dirname(dt.strftime(args.output))
+        outfile = os.path.basename(dt.strftime(args.output))
+    else:
+        outdir = config.get("xplanet", 'destinationdir')
+        outfile = config.get("xplanet", 'destinationfile')
 
     print("Download image date/time: ",
           dt.strftime("%Y-%m-%d %H:00 UTC"))

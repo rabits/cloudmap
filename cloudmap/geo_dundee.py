@@ -20,7 +20,7 @@ class GeoSatelliteDataDundee(object):
     """
 
     def __init__(self, longitude, limit, rescale, base_url, suffix,
-                 resolution, debug=False):
+                 resolution, available, debug=False):
         """
         Args:
 
@@ -38,6 +38,9 @@ class GeoSatelliteDataDundee(object):
                 suffix of the image name
             * resolution:
                 resolution of the image to be downloaded (low, medium, high)
+            * available:
+                interval in minutes between shots
+                can be used to find near image if target not found
         """
 
         resolution_str = {'low': 'S4',
@@ -46,6 +49,8 @@ class GeoSatelliteDataDundee(object):
         resolution_mult = {'low': 1,
                            'medium': 2,
                            'high': 4}
+
+        self.available = available
 
         self.debug = debug
 
@@ -105,7 +110,7 @@ class GeoSatelliteDataDundee(object):
                 directory to store downloaded images
         """
         self.dt = datetime.datetime(dt.year, dt.month, dt.day,
-                                    int((dt.hour // 3) * 3), 0, 0)
+                                    dt.hour, dt.minute, 0)
         day = self.dt.strftime("%d").lstrip("0")
         month = self.dt.strftime("%m").lstrip("0")
         hour = self.dt.strftime("%H").lstrip("0")
@@ -128,6 +133,24 @@ class GeoSatelliteDataDundee(object):
             if fl == self.filename:
                 continue
             os.remove(fl)
+
+    def check_for_image_range(self, max_range):
+        """
+        Will check an image range dt - max_range < dt < dt + max_range
+        starting from dt
+        """
+        if not self.check_for_image():
+            original_dt = self.dt
+            for delta in range(self.available, max_range, self.available):
+                for d in [-delta, delta]:
+                    self.set_time(original_dt+datetime.timedelta(minutes=d),os.path.dirname(self.filename))
+                    if self.check_for_image():
+                        print("WARNING:  found in range:", self.dt)
+                        return True
+            self.dt = original_dt
+            print("WARNING:  not found in range:", self.dt)
+            return False
+        return True
 
     def check_for_image(self):
         """
